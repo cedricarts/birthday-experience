@@ -556,8 +556,9 @@
       const params = useSearchParams(search);
       const name = params.get('n');
       const dateStr = params.get('d');
-      const message = params.get('m') || '';
-      const coupon = params.get('c') || '';
+      const decode = str => { try { return decodeURIComponent(escape(atob(str))); } catch(e) { return str; } };
+      const message = params.get('m') ? decode(params.get('m')) : '';
+      const coupon = params.get('c') ? decode(params.get('c')) : '';
 
       // Validate
       if (!name || !dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
@@ -619,13 +620,15 @@
         return Object.keys(e).length === 0;
       };
 
+      const b64 = str => btoa(unescape(encodeURIComponent(str)));
+
       const generate = () => {
         if (!validate()) return;
         const params = new URLSearchParams();
         params.set('n', form.name.trim());
         params.set('d', form.date);
-        if (form.message.trim()) params.set('m', form.message.trim());
-        if (form.coupon.trim()) params.set('c', form.coupon.trim());
+        if (form.message.trim()) params.set('m', b64(form.message.trim()));
+        if (form.coupon.trim()) params.set('c', b64(form.coupon.trim()));
         const url = `${window.location.origin}${window.location.pathname}#/celebrate?${params.toString()}`;
         setLink(url);
         setCopied(false);
@@ -796,3 +799,4 @@
   </script>
 </body>
 </html>
+
